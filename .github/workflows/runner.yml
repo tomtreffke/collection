@@ -1,0 +1,31 @@
+name: Test Self-Hosted Runner
+
+on:
+  push:
+    branches:
+    - main # Trigger on pushes to the main branch
+  workflow_dispatch:
+    # Allow manual trigger from the Actions UI
+
+jobs:
+  test-runner:
+    name: Test Self-Hosted Runner
+    runs-on: self-hosted # Specify the runner label (e.g., self-hosted)
+
+    steps:
+    # Step 1: Check out the repository (optional for basic tests)
+    - name: Check out the repository
+      uses: actions/checkout@v4
+
+    # Step 2: Print environment information
+    - name: Print environment info
+      run: |
+        echo "Testing the self-hosted runner"
+        echo "Hostname: $(hostname)"
+        echo "Operating System: $(uname -a)"
+        echo "User: $(whoami)"
+        echo "Runner Labels: $RUNNER_LABELS"
+
+    # Step 3: Run a simple shell command
+    - name: Run a test command
+      run: echo "Self-hosted runner is operational!"
