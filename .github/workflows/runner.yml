@@ -10,7 +10,7 @@ on:
 jobs:
   test-runner:
     name: Test Self-Hosted Runner
-    runs-on: self-hosted # Specify the runner label (e.g., self-hosted)
+    runs-on: self-hosted # Specify the runner label (for self-hosted runners, "self-hosted" is set by default)
 
     steps:
     # Step 1: Check out the repository (optional for basic tests)

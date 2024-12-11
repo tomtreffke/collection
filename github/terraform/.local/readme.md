@@ -1,0 +1,1 @@
+```terraform init --backend-config .\..\.local\azure.conf```
