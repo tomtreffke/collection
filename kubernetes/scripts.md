@@ -45,7 +45,7 @@ put the .crt/.pem files for the certificate chain into one file and then copy al
 
 > should be tested on a seperate secret
 
-kubectl create secret tls gateway.heypharmacist.co.uk-tls \
+kubectl create secret tls gateway.mysite.eu-tls \
     --cert=path/to/new/certificate.crt \
     --key=path/to/new/private.key \
     --dry-run=client -o yaml | kubectl apply -f -
