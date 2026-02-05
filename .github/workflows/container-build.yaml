@@ -34,4 +34,4 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ github.sha }}
-          file: ./kubernetes/container/Dockerfile
+          file: ./kubernetes/container/toolbox.containerfile
