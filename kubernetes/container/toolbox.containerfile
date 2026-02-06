@@ -1,6 +1,11 @@
 # Containerfile for an openSUSE-based AKS debug toolbox
 FROM opensuse/leap:15.5
 
+COPY ./install.sh .
+RUN chmod +x ./install.sh
+
+RUN ./install.sh
+
 # Install base packages
 RUN zypper -n refresh && \
     zypper -n install -y \
@@ -39,30 +44,22 @@ RUN set -eux; \
     if [ -f /tmp/kubelogin ]; then install -m 0755 /tmp/kubelogin /usr/local/bin/kubelogin; fi; \
     rm -f /tmp/kubelogin* /tmp/kubelogin.tar.gz
 
-# Useful extras: wget, curl already installed; add yq and kubectl plugins if desired
-RUN YQ_URL="https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" && \
-    curl -fsSL -o /usr/local/bin/yq "${YQ_URL}" && chmod +x /usr/local/bin/yq
+COPY ./install.sh .
+RUN chmod +x ./install.sh
 
-    # Install Cilium CLI and Hubble CLI (latest releases)
-    RUN set -eux; \
-        # cilium-cli (linux amd64)
-        curl -fsSL -o /tmp/cilium.tar.gz "https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz" || true; \
-        if [ -f /tmp/cilium.tar.gz ]; then \
-          tar -xzf /tmp/cilium.tar.gz -C /tmp || true; \
-          for f in /tmp/cilium* /tmp/cilium; do \
-            [ -f "$f" ] && install -m 0755 "$f" /usr/local/bin/cilium || true; \
-          done; \
-          rm -f /tmp/cilium* /tmp/cilium.tar.gz; \
-        fi; \
-        # hubble (linux amd64)
-        curl -fsSL -o /tmp/hubble.tar.gz "https://github.com/cilium/hubble/releases/latest/download/hubble-linux-amd64.tar.gz" || true; \
-        if [ -f /tmp/hubble.tar.gz ]; then \
-          tar -xzf /tmp/hubble.tar.gz -C /tmp || true; \
-          for f in /tmp/hubble* /tmp/hubble; do \
-            [ -f "$f" ] && install -m 0755 "$f" /usr/local/bin/hubble || true; \
-          done; \
-          rm -f /tmp/hubble* /tmp/hubble.tar.gz; \
-        fi
+RUN echo "Installing Cilium CLI... \n\n\n\n --- \n\n\n\n --- \n\n\n\n ---" 
+RUN ./install.sh
+
+# Useful extras: wget, curl already installed; add yq and kubectl plugins if desired
+# RUN
+# CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt) \
+# CLI_ARCH=amd64 \
+#if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi \
+#curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum} \
+# RUN curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/v0.19.0/cilium-linux-amd64.tar.gz \
+# #sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum \
+# sudo tar xzvfC cilium-linux-amd64.tar.gz /usr/local/bin
+# #rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum} 
 
 # Small housekeeping and default entrypoint
 ENV PATH="/usr/local/bin:${PATH}"
