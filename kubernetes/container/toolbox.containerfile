@@ -45,4 +45,4 @@ RUN YQ_URL="https://github.com/mikefarah/yq/releases/latest/download/yq_linux_am
 
 # Small housekeeping and default entrypoint
 ENV PATH="/usr/local/bin:${PATH}"
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/bash", "-lc", "trap : TERM INT; while true; do sleep 86400; done"]
