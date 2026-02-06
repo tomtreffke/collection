@@ -43,6 +43,27 @@ RUN set -eux; \
 RUN YQ_URL="https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" && \
     curl -fsSL -o /usr/local/bin/yq "${YQ_URL}" && chmod +x /usr/local/bin/yq
 
+    # Install Cilium CLI and Hubble CLI (latest releases)
+    RUN set -eux; \
+        # cilium-cli (linux amd64)
+        curl -fsSL -o /tmp/cilium.tar.gz "https://github.com/cilium/cilium-cli/releases/latest/download/cilium-linux-amd64.tar.gz" || true; \
+        if [ -f /tmp/cilium.tar.gz ]; then \
+          tar -xzf /tmp/cilium.tar.gz -C /tmp || true; \
+          for f in /tmp/cilium* /tmp/cilium; do \
+            [ -f "$f" ] && install -m 0755 "$f" /usr/local/bin/cilium || true; \
+          done; \
+          rm -f /tmp/cilium* /tmp/cilium.tar.gz; \
+        fi; \
+        # hubble (linux amd64)
+        curl -fsSL -o /tmp/hubble.tar.gz "https://github.com/cilium/hubble/releases/latest/download/hubble-linux-amd64.tar.gz" || true; \
+        if [ -f /tmp/hubble.tar.gz ]; then \
+          tar -xzf /tmp/hubble.tar.gz -C /tmp || true; \
+          for f in /tmp/hubble* /tmp/hubble; do \
+            [ -f "$f" ] && install -m 0755 "$f" /usr/local/bin/hubble || true; \
+          done; \
+          rm -f /tmp/hubble* /tmp/hubble.tar.gz; \
+        fi
+
 # Small housekeeping and default entrypoint
 ENV PATH="/usr/local/bin:${PATH}"
 ENTRYPOINT ["/bin/bash", "-lc", "trap : TERM INT; while true; do sleep 86400; done"]
