@@ -1,10 +1,8 @@
 # Containerfile for an openSUSE-based AKS debug toolbox
 FROM opensuse/leap:15.5
 
-COPY ./install.sh .
-RUN chmod +x ./install.sh
+RUN zypper update -y && zypper clean --all
 
-RUN ./install.sh
 
 # Install base packages
 RUN zypper -n refresh && \
@@ -13,12 +11,15 @@ RUN zypper -n refresh && \
       python3 python3-pip \
       git jq which \
       bind-utils iproute2 iputils procps \
+      azure-cli \
       gettext sudo && \
     zypper -n clean --all
 
 # Install Azure CLI (via pip for portability)
-RUN python3 -m pip install --no-cache-dir --upgrade pip && \
-    python3 -m pip install --no-cache-dir azure-cli
+#RUN python3 -m pip install --no-cache-dir --upgrade pip && \
+#    python3 -m pip install --no-cache-dir azure-cli
+
+RUN az aks install-cli
 
 # Install kubectl (stable)
 RUN KUBECTL_URL="https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
@@ -36,13 +37,14 @@ RUN set -eux; \
     chmod +x /usr/local/bin/kustomize; \
     rm -f /tmp/install_kustomize.sh; \
     sleep 1
-# Install kubelogin (Azure AD kubectl plugin)
-RUN set -eux; \
-    KUBELOGIN_URL=$(curl -fsSL https://api.github.com/repos/Azure/kubelogin/releases/latest | grep browser_download_url | grep -i linux | head -n1 | cut -d '"' -f4); \
-    curl -fsSL -o /tmp/kubelogin.tar.gz "${KUBELOGIN_URL}"; \
-    tar -xzf /tmp/kubelogin.tar.gz -C /tmp || true; \
-    if [ -f /tmp/kubelogin ]; then install -m 0755 /tmp/kubelogin /usr/local/bin/kubelogin; fi; \
-    rm -f /tmp/kubelogin* /tmp/kubelogin.tar.gz
+RUN az aks install-cli
+# # Install kubelogin (Azure AD kubectl plugin)
+# RUN set -eux; \
+#     KUBELOGIN_URL=$(curl -fsSL https://api.github.com/repos/Azure/kubelogin/releases/latest | grep browser_download_url | grep -i linux | head -n1 | cut -d '"' -f4); \
+#     curl -fsSL -o /tmp/kubelogin.tar.gz "${KUBELOGIN_URL}"; \
+#     tar -xzf /tmp/kubelogin.tar.gz -C /tmp || true; \
+#     if [ -f /tmp/kubelogin ]; then install -m 0755 /tmp/kubelogin /usr/local/bin/kubelogin; fi; \
+#     rm -f /tmp/kubelogin* /tmp/kubelogin.tar.gz
 
 COPY ./install.sh .
 RUN chmod +x ./install.sh
